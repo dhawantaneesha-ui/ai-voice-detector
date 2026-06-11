@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Voice Authentication Detector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-950 text-white min-h-screen flex items-center justify-center px-4">
+
+  <div class="w-full max-w-md bg-gray-900 rounded-xl shadow-xl p-6">
+
+    <!-- Title -->
+    <h1 class="text-2xl font-bold text-center mb-1">
+      AI Voice Auth Detector
+    </h1>
+    <p class="text-gray-400 text-sm text-center mb-6">
+      Detect whether a voice sample is AI-generated or Human
+    </p>
+
+    <!-- Upload -->
+    <input
+      id="audioInput"
+      type="file"
+      accept="audio/*"
+      class="block w-full text-sm text-gray-400
+             file:mr-4 file:py-2 file:px-4
+             file:rounded-lg file:border-0
+             file:bg-indigo-600 file:text-white
+             hover:file:bg-indigo-700 cursor-pointer"
+    />
+
+    <!-- Button -->
+    <button
+      id="analyzeBtn"
+      type="button"
+      class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 transition py-2 rounded-lg font-semibold"
+    >
+      Analyze Voice
+    </button>
+
+    <!-- Loading -->
+    <p id="loading" class="hidden mt-4 text-center text-gray-400">
+      Analyzing audio...
+    </p>
+
+    <!-- Result -->
+    <div id="result" class="hidden mt-6">
+
+      <h2 class="text-lg font-semibold text-center mb-2">
+        Prediction:
+        <span id="label" class="text-indigo-400">HUMAN</span>
+      </h2>
+
+      <p class="text-center text-gray-400 mb-3">
+        Confidence Level:
+        <span id="confidence">56%</span>
+      </p>
+
+      <p class="text-center text-gray-400 mb-3">
+        Language:
+        <span id="language">Unknown</span>
+      </p>
+
+      <!-- Confidence Bar -->
+      <div class="w-full bg-gray-800 rounded-full h-3 mb-4">
+        <div
+          id="confidenceBar"
+          class="bg-indigo-500 h-3 rounded-full"
+          style="width: 56%;"
+        ></div>
+      </div>
+
+      <!-- Explainability -->
+      <div class="bg-gray-800 rounded-lg p-4 text-sm text-gray-300">
+        <p class="font-semibold mb-1">Why this result?</p>
+        <p id="reason">
+          Audio features align with natural human speech patterns.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="./js/app.js?v=10"></script>
+</body>
+</html>
