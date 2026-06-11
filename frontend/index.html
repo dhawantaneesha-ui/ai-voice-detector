@@ -2,93 +2,478 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AI Voice Authentication Detector</title>
+  <title>AI Voice Detector</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --surface: #111821;
+      --surface-2: #162231;
+      --line: #253244;
+      --text: #eef4fb;
+      --muted: #99a8ba;
+      --blue: #4f8cff;
+      --green: #3ddc97;
+      --amber: #f4b740;
+      --red: #ff6b6b;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+    }
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(79, 140, 255, 0.22), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(61, 220, 151, 0.12), transparent 30%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      min-height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 24px;
+      padding: 28px 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      color: #061019;
+      font-weight: 800;
+      box-shadow: 0 12px 34px rgba(79, 140, 255, 0.25);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 4vw, 44px);
+      letter-spacing: 0;
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 680px;
+      line-height: 1.6;
+    }
+
+    .status-pill {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 12px;
+      color: var(--muted);
+      background: rgba(17, 24, 33, 0.78);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(17, 24, 33, 0.86);
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: 0;
+    }
+
+    .dropzone {
+      position: relative;
+      min-height: 230px;
+      border: 1.5px dashed #3b4b61;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(22, 34, 49, 0.82), rgba(12, 18, 25, 0.72));
+      transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+    }
+
+    .dropzone:hover,
+    .dropzone.is-active {
+      border-color: var(--blue);
+      transform: translateY(-1px);
+      background: linear-gradient(180deg, rgba(32, 48, 68, 0.92), rgba(14, 22, 30, 0.82));
+    }
+
+    .dropzone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-icon {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(79, 140, 255, 0.15);
+      color: var(--blue);
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .file-name {
+      min-height: 22px;
+      margin-top: 14px;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .primary-button {
+      width: 100%;
+      margin-top: 18px;
+      min-height: 48px;
+      border: 0;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--blue), #6aa7ff);
+      color: #061019;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 150ms ease, opacity 150ms ease;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary-button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+      transform: none;
+    }
+
+    .message {
+      margin-top: 14px;
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      color: var(--red);
+    }
+
+    .result-empty {
+      height: 100%;
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(10, 15, 22, 0.42);
+      padding: 28px;
+    }
+
+    .result {
+      display: none;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .verdict-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .verdict {
+      font-size: clamp(34px, 6vw, 56px);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .verdict.ai {
+      color: var(--red);
+    }
+
+    .verdict.human {
+      color: var(--green);
+    }
+
+    .verdict.uncertain {
+      color: var(--amber);
+    }
+
+    .confidence-ring {
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--blue) 0deg, var(--surface-2) 0deg);
+      position: relative;
+    }
+
+    .confidence-ring::after {
+      content: "";
+      position: absolute;
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: var(--surface);
+    }
+
+    .confidence-ring span {
+      position: relative;
+      z-index: 1;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(22, 34, 49, 0.72);
+      min-width: 0;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .metric-value {
+      margin-top: 7px;
+      font-size: 18px;
+      font-weight: 750;
+      overflow-wrap: anywhere;
+    }
+
+    .bar-group {
+      display: grid;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .bar-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #0a1017;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 260ms ease;
+    }
+
+    #aiBar {
+      background: linear-gradient(90deg, var(--red), #ff9f7a);
+    }
+
+    #humanBar {
+      background: linear-gradient(90deg, var(--green), #8cf0c0);
+    }
+
+    .reason-box {
+      border-left: 3px solid var(--blue);
+      padding: 14px 16px;
+      background: rgba(79, 140, 255, 0.08);
+      color: #d7e3f0;
+      line-height: 1.6;
+      border-radius: 0 8px 8px 0;
+    }
+
+    @media (max-width: 860px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .verdict-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 
-<body class="bg-gray-950 text-white min-h-screen flex items-center justify-center px-4">
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">AI</div>
+        <div>
+          <h1>AI Voice Detector</h1>
+          <p class="subtitle">Analyze a WAV voice sample and review the model verdict, confidence, probability split, language, and explanation.</p>
+        </div>
+      </div>
+      <div id="apiStatus" class="status-pill">Backend ready</div>
+    </header>
 
-  <div class="w-full max-w-md bg-gray-900 rounded-xl shadow-xl p-6">
+    <section class="layout">
+      <div class="panel">
+        <h2 class="section-title">Audio Sample</h2>
+        <label id="dropzone" class="dropzone" for="audioInput">
+          <input id="audioInput" type="file" accept=".wav,audio/wav,audio/*" />
+          <div>
+            <div class="upload-icon">↑</div>
+            <strong>Choose a WAV file</strong>
+            <p class="subtitle">The detector works best with clear speech clips of at least 3 seconds.</p>
+            <div id="fileName" class="file-name"></div>
+          </div>
+        </label>
 
-    <!-- Title -->
-    <h1 class="text-2xl font-bold text-center mb-1">
-      AI Voice Auth Detector
-    </h1>
-    <p class="text-gray-400 text-sm text-center mb-6">
-      Detect whether a voice sample is AI-generated or Human
-    </p>
-
-    <!-- Upload -->
-    <input
-      id="audioInput"
-      type="file"
-      accept="audio/*"
-      class="block w-full text-sm text-gray-400
-             file:mr-4 file:py-2 file:px-4
-             file:rounded-lg file:border-0
-             file:bg-indigo-600 file:text-white
-             hover:file:bg-indigo-700 cursor-pointer"
-    />
-
-    <!-- Button -->
-    <button
-      id="analyzeBtn"
-      type="button"
-      class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 transition py-2 rounded-lg font-semibold"
-    >
-      Analyze Voice
-    </button>
-
-    <!-- Loading -->
-    <p id="loading" class="hidden mt-4 text-center text-gray-400">
-      Analyzing audio...
-    </p>
-
-    <!-- Result -->
-    <div id="result" class="hidden mt-6">
-
-      <h2 class="text-lg font-semibold text-center mb-2">
-        Prediction:
-        <span id="label" class="text-indigo-400">HUMAN</span>
-      </h2>
-
-      <p class="text-center text-gray-400 mb-3">
-        Confidence Level:
-        <span id="confidence">56%</span>
-      </p>
-
-      <p class="text-center text-gray-400 mb-3">
-        Language:
-        <span id="language">Unknown</span>
-      </p>
-
-      <!-- Confidence Bar -->
-      <div class="w-full bg-gray-800 rounded-full h-3 mb-4">
-        <div
-          id="confidenceBar"
-          class="bg-indigo-500 h-3 rounded-full"
-          style="width: 56%;"
-        ></div>
+        <button id="analyzeBtn" class="primary-button" type="button">Analyze Voice</button>
+        <div id="message" class="message"></div>
       </div>
 
-      <!-- Explainability -->
-      <div class="bg-gray-800 rounded-lg p-4 text-sm text-gray-300">
-        <p class="font-semibold mb-1">Why this result?</p>
-        <p id="reason">
-          Audio features align with natural human speech patterns.
-        </p>
+      <div class="panel">
+        <h2 class="section-title">Analysis Result</h2>
+
+        <div id="emptyState" class="result-empty">
+          <div>
+            <strong>No analysis yet</strong>
+            <p class="subtitle">Upload a voice sample to see the prediction details here.</p>
+          </div>
+        </div>
+
+        <div id="result" class="result">
+          <div class="verdict-row">
+            <div>
+              <div id="label" class="verdict uncertain">UNCERTAIN</div>
+              <p id="strength" class="subtitle">Waiting for model output</p>
+            </div>
+            <div id="confidenceRing" class="confidence-ring">
+              <span id="confidence">0%</span>
+            </div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-label">Language</div>
+              <div id="language" class="metric-value">Unknown</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Duration</div>
+              <div id="duration" class="metric-value">0s</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Model</div>
+              <div id="modelName" class="metric-value">MFCC</div>
+            </div>
+          </div>
+
+          <div class="bar-group">
+            <div>
+              <div class="bar-label">
+                <span>AI probability</span>
+                <span id="aiProbability">0%</span>
+              </div>
+              <div class="bar-track"><div id="aiBar" class="bar-fill"></div></div>
+            </div>
+            <div>
+              <div class="bar-label">
+                <span>Human probability</span>
+                <span id="humanProbability">0%</span>
+              </div>
+              <div class="bar-track"><div id="humanBar" class="bar-fill"></div></div>
+            </div>
+          </div>
+
+          <div class="reason-box">
+            <strong>Why this result?</strong>
+            <div id="reason">The explanation will appear after analysis.</div>
+          </div>
+        </div>
       </div>
+    </section>
+  </main>
 
-    </div>
-  </div>
-
-  <!-- JS -->
-  <script src="./js/app.js?v=10"></script>
+  <script src="./js/app.js?v=20"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@ Detect whether a WAV voice sample is AI-generated, human, or uncertain.
 The project has:
 
 - FastAPI backend on `http://127.0.0.1:8000`
-- Static frontend on `http://127.0.0.1:8090`
+- Static frontend on `http://127.0.0.1:8092`
 - MFCC feature extraction with a saved scikit-learn model
 
 ## Run From VS Code
@@ -40,7 +40,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run_frontend.ps1
 Open the app:
 
 ```text
-http://127.0.0.1:8090/
+http://127.0.0.1:8092/
 ```
 
 Check the backend:
@@ -78,4 +78,4 @@ Upload a `.wav` file using the form field name `file`.
 
 - Use Python 3.11.
 - The old `venv/` folder may be stale, so the scripts use `py -3.11`.
-- Frontend uses port `8090` to avoid browser cache issues from the old `8080` run.
+- Frontend uses port `8092` to avoid browser cache issues from older local runs.
