@@ -1,0 +1,11 @@
+.git
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+uploads
+*.log
+backend-start.log
+backend-live.log
+backend-live.err.log

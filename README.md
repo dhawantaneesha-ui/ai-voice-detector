@@ -1,3 +1,14 @@
+---
+title: AI Voice Detector
+emoji: 🎙️
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # AI Voice Authenticity Detector
 
 Detect whether a WAV voice sample is AI-generated, human, or uncertain.
