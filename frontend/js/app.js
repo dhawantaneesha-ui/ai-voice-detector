@@ -1,4 +1,7 @@
-const API_URL = "http://127.0.0.1:8000/predict";
+const localFrontendPorts = ["8080", "8090", "8091", "8092"];
+const API_URL = localFrontendPorts.includes(window.location.port)
+  ? "http://127.0.0.1:8000/predict"
+  : "/predict";
 
 const analyzeBtn = document.getElementById("analyzeBtn");
 const audioInput = document.getElementById("audioInput");

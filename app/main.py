@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.staticfiles import StaticFiles
 import shutil, os, uuid
 
 from app.config import SUPPORTED_LANGUAGES
@@ -103,3 +104,9 @@ async def predict(file: UploadFile = File(...)):
 @app.get("/supported-languages")
 async def supported_languages():
     return {"supported_languages": SUPPORTED_LANGUAGES}
+
+
+FRONTEND_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+
+if os.path.isdir(FRONTEND_FOLDER):
+    app.mount("/", StaticFiles(directory=FRONTEND_FOLDER, html=True), name="frontend")

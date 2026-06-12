@@ -49,6 +49,12 @@ Check the backend:
 http://127.0.0.1:8000/health
 ```
 
+For deployment-style local testing, the backend also serves the frontend:
+
+```text
+http://127.0.0.1:8000/
+```
+
 ## VS Code Tasks
 
 You can also use:
@@ -73,6 +79,21 @@ POST http://127.0.0.1:8000/predict
 ```
 
 Upload a `.wav` file using the form field name `file`.
+
+## Deploy
+
+This repo includes `render.yaml` for Render deployment.
+
+1. Push the latest code to GitHub.
+2. Open Render and create a new Blueprint from this GitHub repo.
+3. Render will run:
+
+```text
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+After deployment, use the Render service URL as the live demo link.
 
 ## Notes
 
