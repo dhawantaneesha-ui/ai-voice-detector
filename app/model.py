@@ -30,9 +30,9 @@ def apply_threshold(ai_prob: float, human_prob: float):
     """
     margin = abs(ai_prob - human_prob)
 
-    if ai_prob >= 0.75:
+    if ai_prob >= 0.85:
         label = "AI"
-    elif ai_prob <= 0.45:
+    elif ai_prob <= 0.40:
         label = "HUMAN"
     else:
         label = "UNCERTAIN"
