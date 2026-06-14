@@ -30,12 +30,12 @@ def apply_threshold(ai_prob: float, human_prob: float):
     """
     margin = abs(ai_prob - human_prob)
 
-    if ai_prob >= 0.85:
-        label = "AI"
-    elif ai_prob <= 0.40:
-        label = "HUMAN"
-    else:
+    if margin < 0.05:
         label = "UNCERTAIN"
+    elif ai_prob > human_prob:
+        label = "AI"
+    else:
+        label = "HUMAN"
 
     # Calibrated confidence (never 100%)
     confidence = min(round(margin * 100, 2), 95)
