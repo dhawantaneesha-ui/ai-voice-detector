@@ -45,3 +45,13 @@ def test_detected_ai_voice_denies_voice_authorization():
 
     assert result["action"] == "DENY_VOICE_AUTH"
     assert "voice_spoof_detected" in result["reason_codes"]
+
+
+def test_critical_risk_overrides_uncertain_voice():
+    result = decide_action(
+        risk_level="CRITICAL",
+        voice_verdict="UNCERTAIN",
+    )
+
+    assert result["action"] == "DENY_VOICE_AUTH"
+    assert "critical_transaction_risk" in result["reason_codes"]

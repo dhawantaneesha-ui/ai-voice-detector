@@ -4,11 +4,11 @@ VALID_VOICE_VERDICTS = {"HUMAN", "AI", "UNCERTAIN"}
 
 def decide_action(risk_level: str, voice_verdict: str):
     """
-    Convert model + transaction risk into a bounded financial action.
+    Convert voice + transaction risk into a bounded financial action.
 
-    DENY_VOICE_AUTH never means "block the user's money forever".
-    It means voice authorization is not trusted and a safer
-    authentication path must be used.
+    DENY_VOICE_AUTH does not permanently block the payment.
+    It means voice cannot be trusted as the authorization method
+    and the user must move to a safer authentication path.
     """
 
     risk_level = risk_level.upper()
@@ -20,11 +20,11 @@ def decide_action(risk_level: str, voice_verdict: str):
     if voice_verdict not in VALID_VOICE_VERDICTS:
         raise ValueError(f"Unsupported voice verdict: {voice_verdict}")
 
-    reason_codes = []
-
-    # Strong spoof evidence must never authorize money using voice.
+    # -------------------------------------------------
+    # 1. Confirmed synthetic / spoofed voice
+    # -------------------------------------------------
     if voice_verdict == "AI":
-        reason_codes.append("voice_spoof_detected")
+        reason_codes = ["voice_spoof_detected"]
 
         if risk_level == "CRITICAL":
             reason_codes.append("critical_transaction_risk")
@@ -34,20 +34,29 @@ def decide_action(risk_level: str, voice_verdict: str):
             "reason_codes": reason_codes,
         }
 
-    # Ambiguous biometric evidence gets safer authentication.
-    if voice_verdict == "UNCERTAIN":
-        return {
-            "action": "STEP_UP",
-            "reason_codes": ["voice_auth_uncertain"],
-        }
-
-    # HUMAN voice does not bypass transaction-risk controls.
+    # -------------------------------------------------
+    # 2. Critical transaction risk overrides voice state
+    # -------------------------------------------------
+    # Even HUMAN or UNCERTAIN voice cannot authorize
+    # a transaction whose financial context is critical.
     if risk_level == "CRITICAL":
         return {
             "action": "DENY_VOICE_AUTH",
             "reason_codes": ["critical_transaction_risk"],
         }
 
+    # -------------------------------------------------
+    # 3. Uncertain voice → stronger authentication
+    # -------------------------------------------------
+    if voice_verdict == "UNCERTAIN":
+        return {
+            "action": "STEP_UP",
+            "reason_codes": ["voice_auth_uncertain"],
+        }
+
+    # -------------------------------------------------
+    # 4. Transaction-risk controls for HUMAN voice
+    # -------------------------------------------------
     if risk_level == "HIGH":
         return {
             "action": "REVIEW",
@@ -60,6 +69,9 @@ def decide_action(risk_level: str, voice_verdict: str):
             "reason_codes": ["medium_transaction_risk"],
         }
 
+    # -------------------------------------------------
+    # 5. Low risk + HUMAN voice
+    # -------------------------------------------------
     return {
         "action": "ALLOW",
         "reason_codes": ["risk_within_policy"],
