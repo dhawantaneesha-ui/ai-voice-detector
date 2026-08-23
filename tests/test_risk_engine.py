@@ -41,3 +41,38 @@ def test_genuine_voice_with_high_value_unknown_device_is_not_low_risk():
 
     assert result["risk_level"] == "MEDIUM"
     assert result["risk_score"] >= 30
+
+
+def test_unknown_device_is_exposed_as_risk_evidence():
+    result = score_transaction(
+        voice_spoof_probability=0.05,
+        voice_verdict="HUMAN",
+        amount=80000,
+        known_device=False,
+        known_beneficiary=True,
+        transactions_last_10m=1,
+    )
+
+    assert {
+        "code": "unknown_device",
+        "points": 10,
+    } in result["risk_factors"]
+
+
+def test_critical_transaction_exposes_all_risk_evidence():
+    result = score_transaction(
+        voice_spoof_probability=0.92,
+        voice_verdict="AI",
+        amount=45000,
+        known_device=False,
+        known_beneficiary=False,
+        transactions_last_10m=6,
+    )
+
+    codes = {factor["code"] for factor in result["risk_factors"]}
+
+    assert "voice_spoof_probability" in codes
+    assert "high_value_transaction" in codes
+    assert "unknown_device" in codes
+    assert "unknown_beneficiary" in codes
+    assert "high_velocity" in codes

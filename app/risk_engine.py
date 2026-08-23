@@ -7,38 +7,70 @@ def score_transaction(
     transactions_last_10m: int,
 ):
     """
-    Calculate transaction risk on a 0-100 scale.
-
-    Voice authenticity carries the highest weight.
-    Transaction-context signals increase risk further.
+    Produce an explainable financial-risk score from 0 to 100.
+    Every material contribution is returned as auditable evidence.
     """
 
     score = 0
+    risk_factors = []
 
-    # Voice risk: maximum 60 points
-    score += round(voice_spoof_probability * 60)
+    # Voice spoof signal: maximum 60 points
+    voice_points = round(voice_spoof_probability * 60)
+    score += voice_points
 
-    # High transaction amount
+    if voice_points > 0:
+        risk_factors.append({
+            "code": "voice_spoof_probability",
+            "points": voice_points,
+        })
+
+    # Transaction amount
+    amount_points = 0
+
     if amount >= 50000:
-     score += 20
+        amount_points = 20
     elif amount >= 25000:
-     score += 15
+        amount_points = 15
     elif amount >= 10000:
-     score += 8
+        amount_points = 8
 
-    # Unknown device
+    if amount_points:
+        score += amount_points
+        risk_factors.append({
+            "code": "high_value_transaction",
+            "points": amount_points,
+        })
+
+    # Device novelty
     if not known_device:
         score += 10
+        risk_factors.append({
+            "code": "unknown_device",
+            "points": 10,
+        })
 
-    # New / unknown beneficiary
+    # Beneficiary novelty
     if not known_beneficiary:
         score += 10
+        risk_factors.append({
+            "code": "unknown_beneficiary",
+            "points": 10,
+        })
 
-    # Unusually high transaction velocity
+    # Transaction velocity
+    velocity_points = 0
+
     if transactions_last_10m >= 5:
-        score += 10
+        velocity_points = 10
     elif transactions_last_10m >= 3:
-        score += 5
+        velocity_points = 5
+
+    if velocity_points:
+        score += velocity_points
+        risk_factors.append({
+            "code": "high_velocity",
+            "points": velocity_points,
+        })
 
     score = min(score, 100)
 
@@ -54,4 +86,5 @@ def score_transaction(
     return {
         "risk_score": score,
         "risk_level": risk_level,
+        "risk_factors": risk_factors,
     }
