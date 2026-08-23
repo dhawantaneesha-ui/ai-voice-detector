@@ -1,0 +1,31 @@
+{
+  "dataset": "SpeechAntiSpoofingBenchmarks/ASVspoof2019_LA",
+  "partition": "official_evaluation",
+  "evaluation_type": "balanced_sequential_held_out_sample",
+  "threshold": 0.5,
+  "samples": 50,
+  "bonafide_samples": 25,
+  "spoof_samples": 25,
+  "rows_scanned": 179,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "accuracy": 1.0,
+  "false_positive_rate": 0.0,
+  "false_challenges_per_1000_genuine": 0.0,
+  "confusion_matrix": {
+    "true_bonafide_pred_bonafide": 25,
+    "true_bonafide_pred_spoof": 0,
+    "true_spoof_pred_bonafide": 0,
+    "true_spoof_pred_spoof": 25
+  },
+  "latency_ms": {
+    "mean": 530.96,
+    "p95": 685.24
+  },
+  "score_summary": {
+    "mean": 0.506197,
+    "min": 1e-06,
+    "max": 1.0
+  }
+}
