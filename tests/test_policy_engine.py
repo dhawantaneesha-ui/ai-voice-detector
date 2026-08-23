@@ -55,3 +55,13 @@ def test_critical_risk_overrides_uncertain_voice():
 
     assert result["action"] == "DENY_VOICE_AUTH"
     assert "critical_transaction_risk" in result["reason_codes"]
+    
+    
+def test_high_risk_overrides_uncertain_voice():
+    result = decide_action(
+        risk_level="HIGH",
+        voice_verdict="UNCERTAIN",
+    )
+
+    assert result["action"] == "REVIEW"
+    assert "high_transaction_risk" in result["reason_codes"]

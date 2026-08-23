@@ -9,7 +9,7 @@ import uuid
 from app.assessment import build_assessment
 from app.audio_utils import detect_language
 from app.config import SUPPORTED_LANGUAGES
-from app.model import predict_voice
+from app.anti_spoof import predict_aasist as predict_voice
 
 
 app = FastAPI(
