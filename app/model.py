@@ -26,18 +26,18 @@ model = load(MODEL_PATH)
 
 def apply_threshold(ai_prob: float, human_prob: float):
     """
-    Label decision + calibrated confidence
+    Conservative verdict for financial-risk use cases.
+    Strong evidence is required before calling a voice AI or HUMAN.
+    Ambiguous predictions are explicitly marked UNCERTAIN.
     """
-    margin = abs(ai_prob - human_prob)
-
-    if margin < 0.05:
-        label = "UNCERTAIN"
-    elif ai_prob > human_prob:
+    if ai_prob >= 0.80:
         label = "AI"
-    else:
+    elif human_prob >= 0.80:
         label = "HUMAN"
+    else:
+        label = "UNCERTAIN"
 
-    # Calibrated confidence (never 100%)
+    margin = abs(ai_prob - human_prob)
     confidence = min(round(margin * 100, 2), 95)
 
     return label, confidence
