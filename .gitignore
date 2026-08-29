@@ -6,5 +6,8 @@ venv/
 
 uploads/
 *.log
+.env
+.env.*
+!.env.example
 
 .vscode/*.log

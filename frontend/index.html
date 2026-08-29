@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AI Voice Detector</title>
+  <title>VoxGuard - AI Voice Fraud Defense</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
@@ -22,6 +22,7 @@
       --green: #3ddc97;
       --amber: #f4b740;
       --red: #ff6b6b;
+      --orange: #ff8a4c;
       --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
     }
 
@@ -110,8 +111,8 @@
 
     .panel {
       border: 1px solid var(--line);
-      background: rgba(17, 24, 33, 0.86);
-      box-shadow: var(--shadow);
+      background: rgba(17, 24, 33, 0.92);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
       border-radius: 8px;
       padding: 24px;
     }
@@ -195,7 +196,49 @@
       cursor: wait;
       transform: none;
     }
+    .demo-container {
+      margin-top: 22px;
+    }
 
+    .amount-control {
+      width: 100%;
+      margin-top: 12px;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0a1017;
+      color: var(--text);
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    .scenario-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .demo-btn {
+      margin-top: 0;
+      background: #162231;
+      color: var(--text);
+      border: 1px solid var(--line);
+      text-align: left;
+      padding: 12px 14px;
+    }
+
+    .demo-btn:hover,
+    .demo-btn.is-selected {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(79, 140, 255, 0.18);
+    }
+
+    .scenario-note {
+      margin: -4px 0 4px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
     .message {
       margin-top: 14px;
       min-height: 22px;
@@ -245,7 +288,7 @@
     }
 
     .verdict.ai {
-      color: var(--red);
+      color: var(--amber);
     }
 
     .verdict.human {
@@ -254,6 +297,22 @@
 
     .verdict.uncertain {
       color: var(--amber);
+    }
+
+    .verdict.allow {
+      color: var(--green);
+    }
+
+    .verdict.step-up {
+      color: var(--amber);
+    }
+
+    .verdict.review {
+      color: var(--orange);
+    }
+
+    .verdict.deny {
+      color: var(--red);
     }
 
     .confidence-ring {
@@ -296,6 +355,30 @@
       padding: 14px;
       background: rgba(22, 34, 49, 0.72);
       min-width: 0;
+    }
+
+    .voice-auth {
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 8px;
+      padding: 16px;
+      background: rgba(79, 140, 255, 0.08);
+    }
+
+    .voice-auth-title {
+      color: var(--text);
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    details {
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-weight: 700;
     }
 
     .metric-label {
@@ -386,10 +469,13 @@
   <main class="page">
     <header class="topbar">
       <div class="brand">
-        <div class="brand-mark">AI</div>
+        <div class="brand-mark">VG</div>
         <div>
-          <h1>AI Voice Detector</h1>
-          <p class="subtitle">Analyze a WAV voice sample and review the model verdict, confidence, probability split, language, and explanation.</p>
+          <h1>VoxGuard</h1>
+         <p class="subtitle">
+AI voice fraud defense for payment authorization using anti-spoofing,
+transaction intelligence, and explainable decisions.
+</p>
         </div>
       </div>
       <div id="apiStatus" class="status-pill">Backend ready</div>
@@ -397,23 +483,151 @@
 
     <section class="layout">
       <div class="panel">
-        <h2 class="section-title">Audio Sample</h2>
-        <label id="dropzone" class="dropzone" for="audioInput">
-          <input id="audioInput" type="file" accept=".wav,audio/wav,audio/*" />
-          <div>
-            <div class="upload-icon">↑</div>
-            <strong>Choose a WAV file</strong>
-            <p class="subtitle">The detector works best with clear speech clips of at least 3 seconds.</p>
-            <div id="fileName" class="file-name"></div>
-          </div>
-        </label>
+        <h2 class="section-title">Voice Authorization</h2>
+        <div class="metric" style="margin-bottom:18px">
+          <div class="metric-label">Payment Request</div>
+          <div class="metric-value">INR <span id="paymentPreviewAmount">50,000</span></div>
+          <input
+            id="amountInput"
+            class="amount-control"
+            type="number"
+            min="1"
+            step="500"
+            value="50000"
+            aria-label="Payment amount"
+          />
+          <p class="subtitle">Use any payment amount; INR 50,000 is the high-value demo default.</p>
+        </div>
+<div class="voice-auth">
+  <div class="voice-auth-title">Voice Authorization</div>
 
-        <button id="analyzeBtn" class="primary-button" type="button">Analyze Voice</button>
-        <div id="message" class="message"></div>
+  <p class="subtitle">
+    Say: <strong>"I authorize this payment."</strong>
+  </p>
+
+  <button id="recordBtn" class="primary-button" type="button">
+    🎙️ Start Recording
+  </button>
+
+  <button
+    id="stopBtn"
+    class="primary-button"
+    type="button"
+    disabled
+  >
+    Stop & Verify
+  </button>
+
+  <div id="recordingStatus" class="message">
+    Microphone ready
+  </div>
+  <p class="subtitle">
+    AASIST-L is used as a model signal, not a calibrated probability.
+    Browser microphone audio may require step-up verification.
+  </p>
+</div>
+
+<div style="margin-top:16px">
+  <details>
+    <summary>Use WAV file instead</summary>
+
+    <label id="dropzone" class="dropzone" for="audioInput">
+      <input
+        id="audioInput"
+        type="file"
+        accept=".wav,audio/wav"
+      />
+
+      <div>
+        <div class="upload-icon">↑</div>
+        <strong>Choose a WAV file</strong>
+        <p class="subtitle">
+          Fallback for testing.
+        </p>
+        <div id="fileName" class="file-name"></div>
       </div>
+    </label>
+  </details>
+</div>
 
+<div id="message" class="message"></div>
+<div class="demo-container">
+
+<h3 class="section-title">
+Demo Scenarios
+</h3>
+<p class="subtitle">
+No scenario changes the voice model output; these buttons only change transaction context.
+</p>
+
+<div class="scenario-grid">
+  <button
+    class="primary-button demo-btn is-selected"
+    data-scenario="safe"
+    type="button"
+  >
+    Safe Payment
+  </button>
+  <p class="scenario-note">Known device, known beneficiary, low velocity.</p>
+
+  <button
+    class="primary-button demo-btn"
+    data-scenario="suspicious"
+    type="button"
+  >
+    Suspicious Payment
+  </button>
+  <p class="scenario-note">New device, new beneficiary, elevated velocity.</p>
+
+  <button
+    class="primary-button demo-btn"
+    data-scenario="attack"
+    type="button"
+  >
+    Deepfake Attack
+  </button>
+  <p class="scenario-note">New device, new beneficiary, high recent payment velocity.</p>
+</div>
+
+</div>
+
+      </div>
       <div class="panel">
         <h2 class="section-title">Analysis Result</h2>
+        <div class="metric" style="margin-bottom:18px">
+
+  <div class="metric-label">
+    Payment Request
+  </div>
+
+  <div class="metric-value">
+    ₹<span id="paymentAmount">0</span>
+  </div>
+
+  <div style="margin-top:10px;color:var(--muted)">
+    Payment ID:
+    <span id="paymentId">
+      Not created
+    </span>
+  </div>
+
+  <div style="margin-top:8px">
+    Status:
+    <span id="paymentStatus">
+      Waiting
+    </span>
+  </div>
+
+  <div style="margin-top:8px;color:var(--muted)">
+    Provider:
+    <span id="paymentProvider">
+      Not created
+    </span>
+  </div>
+
+  <div id="paymentWarning" class="message"></div>
+
+</div>
 
         <div id="emptyState" class="result-empty">
           <div>
@@ -425,40 +639,52 @@
         <div id="result" class="result">
           <div class="verdict-row">
             <div>
-              <div id="label" class="verdict uncertain">UNCERTAIN</div>
-              <p id="strength" class="subtitle">Waiting for model output</p>
+              <div id="label" class="verdict uncertain">Decision Pending</div>
+              <p id="strength" class="subtitle">Waiting for voice and risk signals</p>
             </div>
             <div id="confidenceRing" class="confidence-ring">
               <span id="confidence">0%</span>
             </div>
           </div>
 
-          <div class="metrics">
-            <div class="metric">
-              <div class="metric-label">Language</div>
-              <div id="language" class="metric-value">Unknown</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Duration</div>
-              <div id="duration" class="metric-value">0s</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Model</div>
-              <div id="modelName" class="metric-value">MFCC</div>
-            </div>
-          </div>
+         <div class="metrics">
+
+<div class="metric">
+<div class="metric-label">Model</div>
+<div id="modelName" class="metric-value">
+AASIST-L
+</div>
+</div>
+
+
+<div class="metric">
+<div class="metric-label">Risk</div>
+<div id="riskLevel" class="metric-value">
+UNKNOWN
+</div>
+</div>
+
+
+<div class="metric">
+<div class="metric-label">Action</div>
+<div id="decisionAction" class="metric-value">
+WAITING
+</div>
+</div>
+
+</div>
 
           <div class="bar-group">
             <div>
               <div class="bar-label">
-                <span>AI probability</span>
+                <span>Spoof signal</span>
                 <span id="aiProbability">0%</span>
               </div>
               <div class="bar-track"><div id="aiBar" class="bar-fill"></div></div>
             </div>
             <div>
               <div class="bar-label">
-                <span>Human probability</span>
+                <span>Bona fide signal</span>
                 <span id="humanProbability">0%</span>
               </div>
               <div class="bar-track"><div id="humanBar" class="bar-fill"></div></div>
@@ -466,7 +692,7 @@
           </div>
 
           <div class="reason-box">
-            <strong>Why this result?</strong>
+           <strong>Decision Explanation</strong>
             <div id="reason">The explanation will appear after analysis.</div>
           </div>
         </div>
@@ -474,6 +700,6 @@
     </section>
   </main>
 
-  <script src="./js/app.js?v=20"></script>
+  <script src="./js/app.js?v=26"></script>
 </body>
 </html>

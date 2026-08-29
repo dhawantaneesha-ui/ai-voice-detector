@@ -190,8 +190,72 @@ def main():
         if (fp + tn) > 0
         else 0.0
     )
+    
+    AI_THRESHOLD = 0.80
+HUMAN_THRESHOLD = 0.20
+
+genuine_allowed = 0
+genuine_uncertain = 0
+genuine_denied = 0
+
+spoof_caught = 0
+spoof_uncertain = 0
+spoof_allowed = 0
+
+for true_label, score in zip(y_true, scores):
+    if score >= AI_THRESHOLD:
+        verdict = "AI"
+    elif score <= HUMAN_THRESHOLD:
+        verdict = "HUMAN"
+    else:
+        verdict = "UNCERTAIN"
+
+    if true_label == 0:
+        if verdict == "HUMAN":
+            genuine_allowed += 1
+        elif verdict == "UNCERTAIN":
+            genuine_uncertain += 1
+        else:
+            genuine_denied += 1
+
+    else:
+        if verdict == "AI":
+            spoof_caught += 1
+        elif verdict == "UNCERTAIN":
+            spoof_uncertain += 1
+        else:
+            spoof_allowed += 1
 
     results = {
+        
+        "product_voice_triage": {
+    "human_threshold": HUMAN_THRESHOLD,
+    "ai_threshold": AI_THRESHOLD,
+
+    "genuine": {
+        "allowed": genuine_allowed,
+        "uncertain": genuine_uncertain,
+        "false_voice_denials": genuine_denied,
+        "false_voice_denial_rate": round(
+            genuine_denied / counts[0],
+            6,
+        ),
+    },
+
+    "spoof": {
+        "strongly_caught": spoof_caught,
+        "uncertain": spoof_uncertain,
+        "dangerously_allowed": spoof_allowed,
+        "unsafe_allow_rate": round(
+            spoof_allowed / counts[1],
+            6,
+        ),
+        "safe_intercept_rate": round(
+            (spoof_caught + spoof_uncertain) / counts[1],
+            6,
+        ),
+    },
+},
         "dataset": DATASET_NAME,
         "partition": "official_evaluation",
         "evaluation_type": (

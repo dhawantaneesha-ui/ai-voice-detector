@@ -29,6 +29,7 @@ def build_assessment(
     decision = decide_action(
         risk_level=risk["risk_level"],
         voice_verdict=voice_verdict,
+        risk_factors=risk["risk_factors"],
     )
 
     return {
@@ -36,6 +37,9 @@ def build_assessment(
             "verdict": voice_verdict,
             "spoof_probability": spoof_probability,
             "confidence": voice_result.get("confidence"),
+            "confidence_kind": voice_result.get("confidence_kind"),
+            "probability_breakdown": voice_result.get("probability_breakdown"),
+            "quality_warnings": voice_result.get("quality_warnings", []),
             "model_name": voice_result.get("model_name"),
         },
         "transaction": {

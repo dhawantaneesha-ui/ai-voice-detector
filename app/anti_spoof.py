@@ -20,9 +20,8 @@ WEIGHTS_PATH = AASIST_DIR / "AASIST-L.pth"
 TARGET_SAMPLE_RATE = 16000
 TARGET_NUM_SAMPLES = 64600
 
-SPOOF_THRESHOLD = 0.80
-BONAFIDE_THRESHOLD = 0.20
-
+SPOOF_THRESHOLD = 0.95
+BONAFIDE_THRESHOLD = 0.05
 
 def pad_audio(
     audio: np.ndarray,
@@ -97,7 +96,14 @@ def predict_aasist(file_path: str) -> dict:
     """
     Run AASIST-L anti-spoof inference.
 
-    Official model class 0 = spoof, class 1 = bonafide.
+    Official AASIST-L semantics:
+    - logits[:, 0] = spoof
+    - logits[:, 1] = bona fide
+    - higher logits[:, 1] = more bona fide
+
+    We expose the softmax class probabilities only as
+    probability breakdowns for the product UI. They are
+    not treated as calibrated real-world probabilities.
     """
 
     audio, _ = librosa.load(
@@ -107,9 +113,14 @@ def predict_aasist(file_path: str) -> dict:
     )
 
     if audio.size == 0:
-        raise ValueError("Audio contains no samples")
+        raise ValueError(
+            "Audio contains no samples"
+        )
 
-    duration = len(audio) / TARGET_SAMPLE_RATE
+    duration = (
+        len(audio) / TARGET_SAMPLE_RATE
+    )
+
     model_input = pad_audio(audio)
 
     tensor = torch.tensor(
@@ -123,42 +134,99 @@ def predict_aasist(file_path: str) -> dict:
 
     with torch.inference_mode():
         _, logits = model(tensor)
-        probabilities = torch.softmax(logits, dim=1)[0]
 
-    latency_ms = (time.perf_counter() - started) * 1000
+        probabilities = torch.softmax(
+            logits,
+            dim=1,
+        )[0]
 
-    spoof_probability = float(probabilities[0].item())
-    bonafide_probability = float(probabilities[1].item())
+    latency_ms = (
+        time.perf_counter() - started
+    ) * 1000
+
+
+    # Official class semantics:
+    # class 0 = spoof
+    # class 1 = bona fide
+
+    spoof_score = float(
+        probabilities[0].item()
+    )
+
+    bonafide_score = float(
+        probabilities[1].item()
+    )
+
 
     label = verdict_from_spoof_probability(
-        spoof_probability,
+        spoof_score
     )
 
     quality_warnings = []
 
-    # For financial authorization we do not trust a strong
-    # classification from an extremely short utterance.
+
     if duration < MIN_AUDIO_DURATION:
-        quality_warnings.append("audio_too_short")
+        quality_warnings.append(
+            "audio_too_short"
+        )
+
         label = "UNCERTAIN"
 
+
     decision_strength = abs(
-        spoof_probability - bonafide_probability
+        spoof_score - bonafide_score
     ) * 100
+
 
     return {
         "label": label,
-        "raw_score": round(spoof_probability, 6),
-        "confidence": round(decision_strength, 2),
-        "confidence_kind": "decision_margin_not_calibrated",
+
+        # Backwards-compatible field used
+        # by the existing risk engine.
+        "raw_score": round(
+            spoof_score,
+            6,
+        ),
+
+        "confidence": round(
+            decision_strength,
+            2,
+        ),
+
+        "confidence_kind": (
+            "model_margin_not_calibrated"
+        ),
+
         "probability_breakdown": {
-            "AI": round(spoof_probability, 6),
-            "HUMAN": round(bonafide_probability, 6),
+            "AI": round(
+                spoof_score,
+                6,
+            ),
+            "HUMAN": round(
+                bonafide_score,
+                6,
+            ),
         },
+
         "model_name": "AASIST-L",
-        "model_role": "primary_anti_spoof",
-        "audio_duration": round(duration, 3),
-        "sample_rate": TARGET_SAMPLE_RATE,
-        "inference_latency_ms": round(latency_ms, 2),
-        "quality_warnings": quality_warnings,
+
+        "model_role": (
+            "primary_anti_spoof"
+        ),
+
+        "audio_duration": round(
+            duration,
+            3,
+        ),
+
+        "sample_rate":
+            TARGET_SAMPLE_RATE,
+
+        "inference_latency_ms": round(
+            latency_ms,
+            2,
+        ),
+
+        "quality_warnings":
+            quality_warnings,
     }
